@@ -25,6 +25,7 @@ services:
       args:
         - BASE_URL=${BASE_URL}
         - NEXT_PUBLIC_APP_URL=${NEXT_PUBLIC_APP_URL}
+        - NEXT_PUBLIC_LICENSE_CONSENT=${NEXT_PUBLIC_LICENSE_CONSENT}
     image: calendso/calendso:latest
     restart: always
     networks:
@@ -36,6 +37,48 @@ services:
       - DATABASE_URL=postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@${DATABASE_HOST}/${POSTGRES_DB}
     depends_on:
       - database
+    labels:
+        - "traefik.enable=true"
+        - "traefik.http.routers.cal.rule=Host(`meetst.online`)"
+        - "traefik.http.routers.cal.entrypoints=web"
+        - "traefik.http.middlewares.test-redirectscheme.redirectscheme.scheme=https"
+        - "traefik.http.middlewares.test-redirectscheme.redirectscheme.permanent=true"
+        - "traefik.http.routers.cal.middlewares=test-redirectscheme"
+        - "traefik.http.routers.cals.rule=Host(`meetst.online`)"
+        - "traefik.http.routers.cals.entrypoints=websecure"
+        - "traefik.http.routers.cals.tls.certresolver=myresolver"
+
+  traefik:
+    image: "traefik:v2.5"
+    container_name: "traefik"
+    networks:
+      - stack
+    command:
+      #- "--log.level=DEBUG"
+      - "--api.insecure=true"
+      - "--providers.docker=true"
+      - "--providers.docker.exposedbydefault=false"
+      - "--entrypoints.web.address=:80"
+      - "--entrypoints.websecure.address=:443"
+      - "--certificatesresolvers.myresolver.acme.tlschallenge=true"
+      #- "--certificatesresolvers.myresolver.acme.caserver=https://acme-staging-v02.api.letsencrypt.org/directory"
+      - "--certificatesresolvers.myresolver.acme.email=francisco.gaona@neogenia.com.mx"
+      - "--certificatesresolvers.myresolver.acme.storage=/letsencrypt/acme.json"
+    ports:
+      - "80:80"
+      - "443:443"
+      - "8080:8080"
+    volumes:
+      - "/var/run/docker.sock:/var/run/docker.sock:ro"
+      - "./letsencrypt:/letsencrypt"
+
+  mailhog:
+    image: 'mailhog/mailhog'
+    networks:
+      - stack
+    ports:
+      - 1025:1025
+      - 8025:8025
 
 # Optional use of Prisma Studio. In production, comment out or remove the section below to prevent unwanted access to your database.
   studio:
