@@ -39,12 +39,12 @@ services:
       - database
     labels:
         - "traefik.enable=true"
-        - "traefik.http.routers.cal.rule=Host(`meetst.online`)"
+        - "traefik.http.routers.cal.rule=Host(`meet.routebox.co`)"
         - "traefik.http.routers.cal.entrypoints=web"
         - "traefik.http.middlewares.test-redirectscheme.redirectscheme.scheme=https"
         - "traefik.http.middlewares.test-redirectscheme.redirectscheme.permanent=true"
         - "traefik.http.routers.cal.middlewares=test-redirectscheme"
-        - "traefik.http.routers.cals.rule=Host(`meetst.online`)"
+        - "traefik.http.routers.cals.rule=Host(`meet.routebox.co`)"
         - "traefik.http.routers.cals.entrypoints=websecure"
         - "traefik.http.routers.cals.tls.certresolver=myresolver"
 
@@ -67,7 +67,7 @@ services:
     ports:
       - "80:80"
       - "443:443"
-      - "8080:8080"
+      - "8081:8080"
     volumes:
       - "/var/run/docker.sock:/var/run/docker.sock:ro"
       - "./letsencrypt:/letsencrypt"
@@ -77,8 +77,8 @@ services:
     networks:
       - stack
     ports:
-      - 1025:1025
-      - 8025:8025
+      - 1026:1025
+      - 8026:8025
 
 # Optional use of Prisma Studio. In production, comment out or remove the section below to prevent unwanted access to your database.
   studio:
